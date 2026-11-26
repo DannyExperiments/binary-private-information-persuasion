@@ -1,0 +1,7 @@
+'PersuasionCertificate.oppositeAlternatives' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PersuasionCertificate.falseClause' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PersuasionCertificate.assignmentMargins' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PersuasionCertificate.trueClause' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PersuasionCertificate.testSurvivesAverage' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PersuasionCertificate.absorbingGuardLoss' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PersuasionCertificate.thresholdGap' depends on axioms: [propext, Classical.choice, Quot.sound]

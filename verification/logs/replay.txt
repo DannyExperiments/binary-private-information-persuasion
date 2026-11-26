@@ -1,0 +1,5 @@
+64 exact clause and guard checks over three Boolean variables
+YES: exact two-message value 12056396281/16106127360; (V-C0)/(a*mu_z) = 264695/65536
+YES: certified lower bound 24112784909/32212254720; threshold 4822537321/6442450944
+NO: 4225 balanced test choices and 1024 sampled two-message policies
+NO: certified upper bound 120563189309/161061273600; threshold 120563435069/161061273600

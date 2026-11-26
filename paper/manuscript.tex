@@ -1,0 +1,273 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage[hmargin=1in,vmargin=.9in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={The complexity of persuasion with a privately informed binary-action receiver}}
+\DeclareFontShape{OT1}{cmr}{bx}{n}{<-> cmbx10}{}
+\DeclareMathSizes{8}{8}{8}{8}
+\DeclareMathSizes{9}{9}{8}{8}
+\DeclareMathSizes{10.95}{10.95}{8}{8}
+\newtheorem{theorem}{Theorem}
+\title{The complexity of persuasion with a privately informed binary-action receiver}
+\date{}
+\begin{document}
+\begin{abstract}
+Computing a payoff-maximizing offline signaling scheme for a privately
+informed binary-action receiver is NP-hard when the private channel is
+known. With rational data and sender-favorable ties, the payoff-threshold
+decision problem is NP-complete, even when the sender's utility is one
+for action~1 and zero for action~0 in every state. A reduction from
+3-SAT uses a rare anchor state to reward satisfied tests and paired
+states whose imbalance incurs a larger payoff loss through guard
+signals. It creates an inverse-polynomial additive payoff gap and rules
+out a deterministic additive FPTAS unless \(\mathrm P=\mathrm{NP}\).
+\end{abstract}
+\maketitle
+
+\section{Offline persuasion problem}
+
+Let \(\Theta\) be a finite state set with a full-support prior \(\mu\).
+The sender commits to a channel \(\phi(s\mid\theta)\) for messages \(s\).
+The receiver privately sees a signal \(r\) from a known finite
+channel \(\psi(r\mid\theta)\), conditionally independent of \(s\)
+given \(\theta\), and chooses action 0 or 1. The two payoff functions
+are \(u_R(j,\theta),u_S(j,\theta)\in[0,1]\). The receiver maximizes
+posterior receiver utility and chooses a sender-preferred action when
+receiver utility is tied. All input numbers and the payoff threshold
+are binary-encoded rationals. The private alphabet is part of the input.
+
+We use the offline formulation of Vurankaya and Topcu
+\cite[eqs.~(2)--(3)]{vt}. The question after their Lemma~6 asks for
+polynomial-time computation with two receiver actions. Their online
+estimation algorithm uses additional regularity and margin conditions.
+Here the true private channel is supplied.
+
+\begin{theorem}
+Deciding whether an offline instance reaches a supplied sender payoff
+threshold is NP-complete. Hardness holds when \(u_S(j,\theta)=j\).
+Moreover, a deterministic fully polynomial additive approximation scheme
+for the optimal value in this restriction would imply
+\(\mathrm P=\mathrm{NP}\).
+\end{theorem}
+
+\section{Rational certificates}
+
+Write \(q_s(\theta)=\mu(\theta)\phi(s\mid\theta)\), so \(q_s\geq0\)
+and \(\sum_s q_s=\mu\).
+Let \(\Delta_R(\theta)=u_R(1,\theta)-u_R(0,\theta)\).
+The unnormalized receiver score on \(s,r\) is
+\[
+ D_r(q_s)=\sum_\theta q_s(\theta)\psi(r\mid\theta)\Delta_R(\theta).
+\]
+Action 1 is a best response for \(D_r\geq0\), and action 0 for
+\(D_r\leq0\). At zero score, the sender-favorable tie rule compares
+the two unnormalized sender utilities. At zero probability both
+utilities contribute zero.
+
+A proposed binary action profile \(b=(b_r)_r\) for a message imposes
+\((2b_r-1)D_r(q)\geq0\) for every \(r\). Its assigned payoff
+\[
+ L_b(q)=\sum_{\theta,r}q(\theta)\psi(r\mid\theta)u_S(b_r,\theta)
+\]
+is linear and no greater than the actual payoff under the
+tie rule whenever \(q\) satisfies those constraints.
+Normalize any nonzero \(q\) to lie in the simplex. For each profile
+its weak best-response inequalities cut out a bounded rational
+polytope. Its vertices have polynomial bit length by the
+determinant bounds for rational linear systems.
+
+Take the finite linear program whose columns are these vertices,
+with one column for each compatible profile. Its variable for a
+column is a probability, its only equality constraints say the
+weighted state vector is \(\mu\), and its objective uses the
+assigned column payoffs. Any signaling policy can use its actual
+profiles and decompose each posterior into such vertices, preserving
+Bayes plausibility and the assigned payoff. More generally, the finite
+convex hull of normalized state-and-payoff vectors is closed,
+so the same assertion holds for a distribution of posteriors.
+Conversely, each feasible linear-program solution is a feasible
+signal distribution and its actual payoff is at least the objective.
+The optima therefore agree and are attained.
+
+There is an optimal basic solution with at most \(|\Theta|\) positive
+weights, again rational with polynomial bit length by determinant
+bounds. The certificate lists its corresponding mass vectors and
+profiles. A verifier checks nonnegativity, prior sums, weak
+incentives and the assigned payoff. These operations take polynomial
+bit time. This proves membership in NP for general input payoffs.
+For fixed private alphabet size \(k\), one can instead group messages
+by profile and keep one unnormalized mass vector for each of the
+\(2^k\) profiles. This gives a polynomial-sized rational linear
+program when \(k\) is fixed.
+
+\section{Tests for a Boolean formula}
+
+Let a 3-CNF have \(n\geq1\) Boolean variables and \(m\geq1\) clauses.
+Use nonnegative abstract variables \(t,x_1,\ldots,x_n\) and an anchor
+mass \(z\). For each variable include the mandatory form \(t-x_i\)
+and the two alternatives \(t/8-x_i\) and \(x_i-7t/8\).
+A clause adds the sum of its three literal values minus \(t/2\), with
+literal values \(x_i\) for positive occurrences and \(t-x_i\) for
+negative occurrences. There are \(M=3n+m\) tests, and set \(K=2n+m\).
+Repeated literals are allowed. Every combined form coefficient is
+at most 3 in absolute value.
+
+For \(z>0\), at most one alternative per variable can be at least
+\(z/2\), because their sum equals \(-3t/4\). If \(K\) tests reach
+\(z/2\), every mandatory form, every clause, and one alternative per
+variable reaches it. Assign false for the low alternative and true
+for the high alternative. The low values satisfy \(x_i\leq t/8\);
+the high values satisfy \(7t/8\leq x_i\leq t\).
+Under this assignment a false clause has all three literal values at
+most \(t/8\). Its form is at most \(-t/8\), a contradiction.
+An unsatisfiable formula thus permits at most \(K-1\) passing tests.
+
+Conversely, fix a satisfying assignment and \(z>0\). Put \(t=32z\)
+and set \(x_i=t/16\) for false and \(x_i=15t/16\) for true.
+All mandatory forms and chosen alternatives have value at least \(t/16\).
+Each satisfied clause has one true literal of value \(15t/16\) and
+the other literal values are nonnegative. These \(K\) forms all exceed \(z\).
+
+\section{From tests to a private channel}
+
+For each of the \(n+1\) abstract variables use one plus and one minus
+state. Add one anchor state with mass
+\(\mu_z=1/[256(n+1)]\). Each paired state has prior
+\(p=(1-\mu_z)/[2(n+1)]\).
+The difference \(\Delta_R\) is \(+1\) on plus states, \(-1\) on
+minus states, and \(-\delta\) on the anchor, where
+\[
+ a=\frac{1}{64M},\qquad b=\frac12,\qquad
+ \delta=\frac{\mu_z}{12M}.
+\]
+Taking positive and negative parts gives receiver payoffs in
+\([0,1]\). The sender gets one for action 1 and zero for action 0.
+
+A private guard signal for a pair has likelihood \(b\) on both
+states of the pair and zero elsewhere. For each test form, a test
+signal has likelihood \(a\) on the anchor, and assigns \(a\delta\)
+times the absolute value of each nonzero coefficient to the plus
+copy for a positive coefficient or the minus copy for a negative
+coefficient. Unassigned likelihoods are zero.
+On a paired state the used likelihood is at most
+\(b+3Ma\delta<1\). On the anchor it is \(Ma=1/64<1\).
+A distinct singleton signal for each state fills its remaining
+likelihood, so the channel is stochastic. The singleton payoff
+\(P_{\mathrm{pad}}\) is a computable constant. A singleton
+reveals its state, and only plus states induce action 1.
+
+For a message with anchor mass \(z\), guard \(i\) induces action 1
+exactly when \(q_i^+\geq q_i^-\). The tie rule selects action 1 at
+equal masses. A test induces action 1 exactly when
+\(L_{\mathrm{split}}\geq z\), where \(L_{\mathrm{split}}\) evaluates
+each coefficient using its assigned sign copy. Its score has the
+positive multiplier \(a\delta\). The maximum total guard payoff
+is \(b(1-\mu_z)\). Test payoffs coming from all paired states are
+at most \(3Ma\delta=a\mu_z/4\), by summing their likelihood bounds
+at the prior. Let \(C_0=P_{\mathrm{pad}}+b(1-\mu_z)\).
+
+\section{Completeness, soundness, and gap}
+
+Suppose the formula is satisfiable. Use a witness message with
+anchor mass \(\mu_z\) and equal paired masses given by the satisfying
+construction. Every paired coordinate is at most \(32\mu_z<p\).
+A second message receives all residual mass, so its paired
+coordinates are equal and its anchor mass is zero. All guards
+succeed and at least \(K\) tests reward the anchor. Hence
+\[
+ V_{\mathrm{yes}}\geq C_0+a\mu_z K.
+\]
+
+Now suppose the formula is unsatisfiable. For an arbitrary finite
+scheme define
+\[
+ F=\sum_{s,i:q_{s,i}^+<q_{s,i}^-}q_{s,i}^- .
+\]
+Failed guards lose at least \(bF\) in total. Put
+\(\Delta_s=\sum_i|q_{s,i}^+-q_{s,i}^-|\) and \(I=\sum_s\Delta_s\).
+Equal paired priors imply that the total positive discrepancy equals
+the absolute total negative discrepancy. The latter is at most \(F\),
+so \(I\leq2F\).
+
+At a message evaluate each abstract variable at the mean of its
+two masses. Each sign copy differs from the mean by half the
+absolute imbalance, and the coefficients have magnitude at most
+3, so \(|L_{\mathrm{split}}-L|\leq3\Delta_s\).
+For \(z_s>0\) and \(3\Delta_s\leq z_s/2\), a successful test must
+have \(L\geq z_s/2\). At most \(K-1\) tests can succeed in such
+a message. The remaining anchor-bearing messages have total
+anchor mass at most \(6I\leq12F\). Even if all \(M\) of their tests
+succeed, they yield no more than \(12MaF\) anchor payoff.
+Adding the padding, guards and paired-state test bound gives
+\[
+ \begin{split}
+ V_{\mathrm{no}}
+ &\leq C_0-bF+a\mu_z(K-1)+12MaF+a\mu_z/4\\
+ &\leq C_0+a\mu_z(K-3/4),
+ \end{split}
+\]
+since \(12Ma=3/16<b\). The argument covers the optimal finite
+scheme proved to exist above.
+
+Set the decision threshold at \(C_0+a\mu_z(K-1/2)\).
+The yes and no cases are separated from it by at least \(a\mu_z/4\).
+There are \(2(n+1)+1\) states and \(M+3(n+1)+1\) private signals.
+The likelihood table, payoffs, and threshold are rational with
+polynomial encoding lengths. This is a polynomial-time reduction
+from 3-SAT. An exact optimal scheme in explicit rational form can be
+evaluated by receiver signs in polynomial bit time.
+An additive FPTAS, using error less than \(a\mu_z/4\), would
+decide 3-SAT in polynomial time because \(1/(a\mu_z)\) is polynomial
+in the formula size. This proves the theorem.
+
+\section{Prior work and validation}
+
+Hossain et al. \cite[Thm.~3 and App.~A.3]{hossain} prove earlier
+best-response hardness with \(2k+1\) actions in their reduction.
+Dughmi and Xu \cite[Thm.~6.2]{dx} prove public-persuasion hardness for
+multiple binary receivers and average adoption. Castiglioni et al.
+\cite[Thm.~1]{cast} prove offline hardness with type-dependent
+receiver utilities. In the known-channel model, however, every
+nonzero coefficient \(\psi(r\mid\theta)\Delta_R(\theta)\) at
+a fixed state has the same sign. The present construction enforces
+this restriction through sign copies and controls their imbalance
+with guards. Sender-favorable ties are used at balanced guards.
+The separate online learning question is outside the result.
+
+Internally reviewed, not peer reviewed. Exact rational replay checks
+the constructed channels, witness messages, and payoff bounds in
+small worked examples. The partial Lean 4.30.0 certificate checks rational test inequalities,
+the small-imbalance transfer and the final payoff comparison. The message
+optimization and complexity proof are analytic.
+
+Under human direction, ChatGPT Astra 6.2 (OpenAI) generated the
+discovery proof and its research packet. OpenAI Codex independently checked the mathematics.
+GPT-6.2 Sol (OpenAI) checked the literature and prepared the
+manuscript, exact replay, partial Lean certificate and illustrations.
+DannyExperiments maintains the repository and is the preferred
+citation identity. No AI system is proposed as an author.
+
+\enlargethispage{3\baselineskip}
+\begin{thebibliography}{9}
+\raggedright
+\bibitem{vt}
+I. A. Vurankaya and U. Topcu, \emph{Learning to Persuade
+Privately Informed Receivers}, arXiv:2607.28342v1, 2026.
+\href{https://arxiv.org/abs/2607.28342}{arXiv:2607.28342}.
+\bibitem{hossain}
+S. Hossain, T. Wang, T. Lin, Y. Chen, D. C. Parkes and H. Xu,
+\emph{Multi-Sender Persuasion: A Computational Perspective},
+Proc. ICML, PMLR 235 (2024), 18944--18971.
+\href{https://proceedings.mlr.press/v235/hossain24c.html}{PMLR publication}.
+\bibitem{dx}
+S. Dughmi and H. Xu, \emph{Algorithmic Persuasion with No Externalities},
+Proc. EC (2017), 351--368.
+\href{https://arxiv.org/abs/1609.06825}{arXiv:1609.06825}.
+\bibitem{cast}
+M. Castiglioni, A. Celli, A. Marchesi and N. Gatti,
+\emph{Online Bayesian Persuasion}, Advances in Neural Information
+Processing Systems 33 (2020), 16188--16198.
+\href{https://papers.neurips.cc/paper_files/paper/2020/hash/ba5451d3c91a0f982f103cdbe249bc78-Abstract.html}{NeurIPS publication}.
+\end{thebibliography}
+\end{document}

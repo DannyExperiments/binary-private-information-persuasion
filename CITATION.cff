@@ -1,0 +1,18 @@
+cff-version: "1.2.0"
+message: "If you cite this release, please cite the version-specific DOI."
+title: "The complexity of persuasion with a privately informed binary-action receiver"
+type: software
+authors:
+  - name: "DannyExperiments"
+doi: "10.5281/zenodo.24572318"
+version: "1.0.0"
+date-released: "2026-11-27"
+repository-code: "https://github.com/DannyExperiments/binary-private-information-persuasion"
+url: "https://github.com/DannyExperiments/binary-private-information-persuasion/releases/tag/v1.0.0"
+abstract: "NP-completeness of rational payoff-threshold persuasion with a known receiver private channel and two receiver actions, with an inverse-polynomial additive gap."
+keywords:
+  - "Bayesian persuasion"
+  - "private receiver signals"
+  - "binary actions"
+  - "NP-completeness"
+  - "additive approximation"

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guard signals penalize imbalance</title>
+<style>
+:root{color-scheme:dark;--bg:#101a28;--panel:#17283a;--ink:#f3f5fa;--muted:#b6c9dc;--line:#34536a;--mint:#7ce0cb;--amber:#ffc378}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.54 system-ui,sans-serif}
+main{max-width:860px;width:calc(100% - 2rem);margin:2rem auto 3rem}
+h1{font-size:clamp(2rem,6vw,3.25rem);margin:0;line-height:1.12;letter-spacing:-.035em}
+h2{font-size:1.15rem;margin:0 0 .45rem}
+p{margin:.55rem 0}
+header p,.muted{color:var(--muted)}
+section,details{border:1px solid var(--line);padding:1rem;border-radius:1rem;background:var(--panel);margin:1rem 0}
+.choices{display:flex;flex-wrap:wrap;gap:.45rem;margin:.45rem 0 .75rem}
+.choices span{flex:1 0 100%;font-size:.88rem;color:var(--muted)}
+button{background:#213a50;color:var(--ink);border:1px solid var(--line);border-radius:.55rem;padding:.35rem .65rem;min-height:2.65rem;font:inherit;cursor:pointer}
+button[aria-pressed=true]{background:var(--mint);color:#102725;border-color:var(--mint);font-weight:690}
+button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.readout{padding:.75rem;border:1px solid var(--line);border-radius:.6rem;background:#101e2d}
+.readout strong{color:var(--mint)}
+.scene{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:.85rem;margin-top:1rem}
+canvas{display:block;width:100%;height:17.5rem;background:#101e2d;border-radius:.6rem}
+.range{display:flex;align-items:center;gap:.6rem;margin-top:.35rem}
+input{height:2.5rem;width:100%;accent-color:var(--mint)}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:right;padding:.38rem;border-bottom:1px solid var(--line)}
+td:first-child,th:first-child{text-align:left}
+.pass{color:var(--mint)}
+.fail{color:var(--amber)}
+summary{cursor:pointer;color:var(--mint);font-weight:670}
+@media(max-width:650px){main{margin-top:1.2rem}section,details{padding:.75rem}.scene{display:flex;flex-direction:column}.figure,.tableWrap{width:100%}canvas{height:13rem}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Guard signals penalize imbalance</h1><p>Inspect how a message carries paired state masses and how the receiver’s tests score one Boolean variable.</p></header>
+<section aria-labelledby="worked">
+<h2 id="worked">Worked example</h2>
+<div class="choices" role="group" aria-label="Second clause">
+<span>Second clause</span>
+<button id="sat" type="button" aria-pressed="true">Repeat the first clause</button>
+<button id="unsat" type="button" aria-pressed="false">Negate all literals</button>
+</div>
+<div class="choices" role="group" aria-label="Choose Boolean assignment">
+<span>Assignment</span>
+<button id="true" type="button" aria-pressed="true">x is true</button>
+<button id="false" type="button" aria-pressed="false">x is false</button>
+</div>
+<div class="readout" aria-live="polite">
+<p id="formula"><strong>SAT</strong> · (x ∨ x ∨ x) ∧ (x ∨ x ∨ x)</p>
+<p id="counts"><strong>4 of 5 tests pass</strong> at t = 32z, x = 30z.</p>
+<p id="gap">Certified SAT payoff ≥ 4 after normalization. Decision threshold 7/2.</p>
+</div>
+<div class="scene">
+<div class="figure">
+<canvas id="cube" role="img" aria-label="Perspective view of the true and false assignment rays in the mass coordinates t, x, z"></canvas>
+<label class="range" for="angle">Rotate<input id="angle" type="range" min="0" max="360" value="26" aria-label="Rotation angle"></label>
+<p class="muted">The cube shows t and x from 0 to 40 anchor units, and z from 0 to one anchor unit. The lit ray is the chosen assignment.</p>
+</div>
+<div class="tableWrap">
+<table>
+<thead><tr><th scope="col">Test</th><th scope="col">Score / z</th><th scope="col">Outcome</th></tr></thead>
+<tbody id="scores"></tbody>
+</table>
+<p class="muted">A score of at least 1 passes after division by z. Both guards pass at the balanced pairs.</p>
+</div>
+</div>
+</section>
+<details>
+<summary>Where the payoff bounds come from</summary>
+<p>The two states of each pair receive equal mass in the example. Their guard signal then makes the receiver indifferent, so sender-favorable ties select action 1. In an arbitrary scheme, imbalance can increase some test scores, but the proof bounds that increase by a larger guard loss.</p>
+<p>Each instance has a baseline C₀ from singleton signals and successful guards. Subtract that instance’s baseline from its payoff and divide by aμ<sub>z</sub>, the reward from one successful test on all anchor mass. These units give certified bounds UNSAT ≤ 13/4 and SAT ≥ 4 around the threshold 7/2. The paper proves the bounds for all schemes, including imbalanced ones.</p>
+</details>
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const canvas=$("cube"),ctx=canvas.getContext("2d");
+const points=Array.from({length:8},(_,i)=>[(i>>2)&1,(i>>1)&1,i&1]);
+const edgePairs=[];
+for(let i=0;i<8;i++)for(let j=i+1;j<8;j++){
+  if(points[i].filter((v,k)=>v!==points[j][k]).length===1)edgePairs.push([i,j]);
+}
+let sat=true,truth=true;
+function paint(){
+  const {width,height}=canvas.getBoundingClientRect(),density=Math.min(devicePixelRatio||1,2);
+  canvas.width=Math.round(width*density);canvas.height=Math.round(height*density);ctx.scale(density,density);
+  const angle=Number($("angle").value)*Math.PI/180,pitch=.44,scale=Math.min(width,height)*.62;
+  function project(p){
+    let [x,y,z]=p.map(v=>v-.5);
+    [x,z]=[x*Math.cos(angle)+z*Math.sin(angle),-x*Math.sin(angle)+z*Math.cos(angle)];
+    [y,z]=[y*Math.cos(pitch)-z*Math.sin(pitch),y*Math.sin(pitch)+z*Math.cos(pitch)];
+    const k=5/(5-z);
+    return [width/2+x*scale*k,height/2-y*scale*k,z];
+  }
+  const v=points.map(project),depth=([i,j])=>v[i][2]+v[j][2];
+  for(const edge of edgePairs.slice().sort((a,b)=>depth(a)-depth(b))){
+    const [i,j]=edge;
+    ctx.strokeStyle=depth(edge)>0?"#60869d":"#30495f";
+    ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(v[i][0],v[i][1]);ctx.lineTo(v[j][0],v[j][1]);ctx.stroke();
+  }
+  for(const flag of [!truth,truth]){
+    const [x,y]=project([.8,1,flag ? .75 : .05]),active=flag===truth;
+    ctx.strokeStyle=active?"#7ce0cb":"#b6c9dc";ctx.lineWidth=active?3:1;
+    ctx.beginPath();ctx.moveTo(v[0][0],v[0][1]);ctx.lineTo(x,y);ctx.stroke();
+    ctx.beginPath();ctx.arc(x,y,active?7:5,0,Math.PI*2);ctx.fillStyle=active?"#7ce0cb":"#101e2d";ctx.fill();ctx.stroke();
+  }
+}
+function refresh(){
+  $("sat").setAttribute("aria-pressed",String(sat));$("unsat").setAttribute("aria-pressed",String(!sat));
+  $("true").setAttribute("aria-pressed",String(truth));$("false").setAttribute("aria-pressed",String(!truth));
+  const t=32,x=truth?30:2;
+  const values=[t-x,t/8-x,x-7*t/8,3*x-t/2,3*(sat?x:t-x)-t/2];
+  const count=values.filter(v=>v>=1).length;
+  $("formula").innerHTML=sat?"<strong>SAT</strong> · (x ∨ x ∨ x) ∧ (x ∨ x ∨ x)":"<strong>UNSAT</strong> · (x ∨ x ∨ x) ∧ (¬x ∨ ¬x ∨ ¬x)";
+  $("counts").innerHTML="<strong>"+count+" of 5 tests pass</strong> at t = 32z, x = "+x+"z.";
+  $("gap").textContent=sat?"Certified optimal SAT payoff ≥ 4 after normalization. Decision threshold 7/2.":"Certified optimal UNSAT payoff ≤ 13/4 after normalization. Decision threshold 7/2.";
+  const names=["Mandatory","Low alternative","High alternative","First clause","Second clause"];
+  $("scores").innerHTML=values.map((v,i)=>"<tr><td>"+names[i]+"</td><td>"+v+"</td><td class="+(v>=1?"pass>Pass":"fail>Miss")+"</td></tr>").join("");
+  paint();
+}
+$("sat").addEventListener("click",()=>{sat=true;refresh()});$("unsat").addEventListener("click",()=>{sat=false;refresh()});
+$("true").addEventListener("click",()=>{truth=true;refresh()});$("false").addEventListener("click",()=>{truth=false;refresh()});
+$("angle").addEventListener("input",paint);new ResizeObserver(paint).observe(canvas);refresh();
+</script>
+</body>
+</html>

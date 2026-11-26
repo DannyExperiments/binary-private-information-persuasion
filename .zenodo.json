@@ -1,0 +1,29 @@
+{
+  "title": "The complexity of persuasion with a privately informed binary-action receiver",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "DannyExperiments"
+    }
+  ],
+  "keywords": [
+    "Bayesian persuasion",
+    "private receiver signals",
+    "binary actions",
+    "NP-completeness",
+    "additive approximation"
+  ],
+  "description": "<p>The rational payoff-threshold problem for offline Bayesian persuasion with a privately informed receiver is NP-complete even with two receiver actions and sender payoff equal to the chosen action in every state. This is the known-channel model of Vurankaya and Topcu with weak incentives and sender-favorable receiver ties.</p><p>A 3-SAT reduction encodes each variable in a pair of states and rewards successful receiver tests on a rare anchor state. Guard signals charge a loss for unbalanced pairs. The resulting inverse-polynomial gap rules out a deterministic additive FPTAS unless P = NP. A finite rational posterior-vertex program establishes NP membership.</p><p>Earlier best-response and public-persuasion hardness results allow more receiver actions or receiver-specific utility signs at a fixed state. Binary refers to actions here. The private-signal alphabet grows with input size, and the result concerns offline optimization. Exact rational replay and an offline rotating example accompany the proof. The partial Lean 4.30.0 certificate checks rational test and threshold inequalities. Internally reviewed, not peer reviewed.</p><p>Under human direction, ChatGPT Astra 6.2 (OpenAI) generated the discovery proof and its research packet. OpenAI Codex independently checked the mathematics. GPT-6.2 Sol (OpenAI) checked the literature and prepared the manuscript, exact replay, partial Lean certificate and illustrations. DannyExperiments maintains the repository and is the preferred citation identity. No AI system is proposed as an author.</p><p>Release v1.0.0. https://github.com/DannyExperiments/binary-private-information-persuasion/releases/tag/v1.0.0</p>",
+  "license": "other-closed",
+  "notes": "All rights reserved. Publicly downloadable files are supplied without a repository-wide reuse license.",
+  "publication_date": "2026-11-27",
+  "version": "1.0.0",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/DannyExperiments/binary-private-information-persuasion/releases/tag/v1.0.0",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}
